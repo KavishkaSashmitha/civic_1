@@ -33,15 +33,17 @@ class _HomeScreenState extends State<HomeScreen> {
   // List of screens to switch between
   final List<Widget> _screens = [
     HomePage(),
-    GroupPage(),
     PlaceholderPage(),
     NotificationsPage(),
     ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
-    if (index == 2) {
-      // Handle middle button tap
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => GroupPage()),
+      );
     } else {
       setState(() {
         _selectedIndex = index;
@@ -68,26 +70,26 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             IconButton(
               icon: Icon(Icons.group),
-              color: _selectedIndex == 1 ? Colors.white : Colors.grey,
+              color: Colors.grey,
               onPressed: () => _onItemTapped(1),
             ),
-            SizedBox(width: 40),
+            SizedBox(width: 40), // Space for the floating action button
             IconButton(
               icon: Icon(Icons.notifications),
-              color: _selectedIndex == 3 ? Colors.white : Colors.grey,
-              onPressed: () => _onItemTapped(3),
+              color: _selectedIndex == 2 ? Colors.white : Colors.grey,
+              onPressed: () => _onItemTapped(2),
             ),
             IconButton(
               icon: Icon(Icons.person),
-              color: _selectedIndex == 4 ? Colors.white : Colors.grey,
-              onPressed: () => _onItemTapped(4),
+              color: _selectedIndex == 3 ? Colors.white : Colors.grey,
+              onPressed: () => _onItemTapped(3),
             ),
           ],
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _onItemTapped(2),
+        onPressed: () => _onItemTapped(1),
         backgroundColor: Color(0xFFFF3131),
         child: Icon(Icons.add, color: Colors.white, size: 30),
       ),

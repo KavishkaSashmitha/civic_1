@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_switch/flutter_switch.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 
 class GroupPage extends StatefulWidget {
   @override
@@ -7,75 +8,75 @@ class GroupPage extends StatefulWidget {
 }
 
 class _GroupPageState extends State<GroupPage> {
-  bool isSwitched = false;
+  int _currentIndex = 1;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+        title: Center(
+          child: Padding(
+            padding: EdgeInsets.only(top: 16.0),
+            child: Text(
+              'EVENTS',
+              style: GoogleFonts.openSans(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1, // Use maxLines to limit the number of lines
+            ),
+          ),
         ),
-        title: Text('Group'),
+        backgroundColor:
+            Colors.black, // Correct property for AppBar background color
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FlutterSwitch(
-                  width: 250,
-                  height: 60,
-                  valueFontSize: 16,
-                  toggleSize: 60,
-                  value: isSwitched,
-                  borderRadius: 30.0,
-                  padding: 5.0,
-                  activeColor: Colors.white,
-                  inactiveColor: Colors.white,
-                  activeToggleColor: Colors.white,
-                  inactiveToggleColor: Colors.transparent,
-                  activeSwitchBorder: Border.all(
-                    color: Colors.red, // The border for the active switch
-                    width: 2.0,
-                  ),
-                  inactiveSwitchBorder: Border.all(
-                    color: Colors.grey, // The border for the inactive switch
-                    width: 2.0,
-                  ),
-                  activeText: "UPCOMING",
-                  inactiveText: "PAST EVENTS",
-                  activeTextColor: Colors.red,
-                  inactiveTextColor: Colors.grey,
-                  activeTextFontWeight: FontWeight.bold,
-                  inactiveTextFontWeight: FontWeight.bold,
-                  showOnOff: true,
-                  onToggle: (val) {
-                    setState(() {
-                      isSwitched = val;
-                    });
-                  },
-                ),
-              ],
+            SizedBox(height: 20), // Add space from the top
+            Center(
+              child: ToggleSwitch(
+                minWidth: 90.0,
+                cornerRadius: 20.0,
+                activeBgColors: [
+                  [Colors.blue], // Change active background color
+                  [Colors.green] // Change active background color
+                ],
+                activeFgColor: Colors.white, // Change text color when active
+                inactiveBgColor: Colors.grey,
+                inactiveFgColor:
+                    Colors.black, // Change text color when inactive
+                initialLabelIndex: _currentIndex,
+                totalSwitches: 2,
+                labels: ['True', 'False'],
+                radiusStyle: true,
+                onToggle: (index) {
+                  setState(() {
+                    _currentIndex = index ?? 1;
+                  });
+                  print('switched to: $index');
+                },
+              ),
             ),
             SizedBox(height: 20),
-            Container(
-              padding: EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.grey[800],
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                isSwitched
-                    ? 'This is the Community Page!'
-                    : 'This is the Group Page!',
-                style: TextStyle(color: Colors.white, fontSize: 20),
+            Center(
+              child: Container(
+                width: 150, // Set a fixed width to match the toggle switch
+                padding: EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.grey[800],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: Text(
+                    _currentIndex == 0 ? 'True selected!' : 'False selected!',
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
             ),
           ],
