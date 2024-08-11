@@ -24,14 +24,13 @@ class _HomeScreenState extends State<HomeScreen> {
   // List of screens to switch between
   final List<Widget> _screens = [
     HomeTab(),
-    GroupTab(),
-    PlaceholderScreen(),
+    PlaceholderScreen(), // Placeholder for FAB
     NotificationsTab(),
     ProfileTab(),
   ];
 
   void _onItemTapped(int index) {
-    if (index == 2) {
+    if (index == 1) {
       // Handle middle button tap
     } else {
       setState(() {
@@ -59,26 +58,31 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             IconButton(
               icon: Icon(Icons.group),
-              color: _selectedIndex == 1 ? Colors.white : Colors.grey,
-              onPressed: () => _onItemTapped(1),
+              color: Colors.grey,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => GroupTab()),
+                );
+              },
             ),
             SizedBox(width: 40), // Space for the floating action button
             IconButton(
               icon: Icon(Icons.notifications),
-              color: _selectedIndex == 3 ? Colors.white : Colors.grey,
-              onPressed: () => _onItemTapped(3),
+              color: _selectedIndex == 2 ? Colors.white : Colors.grey,
+              onPressed: () => _onItemTapped(2),
             ),
             IconButton(
               icon: Icon(Icons.person),
-              color: _selectedIndex == 4 ? Colors.white : Colors.grey,
-              onPressed: () => _onItemTapped(4),
+              color: _selectedIndex == 3 ? Colors.white : Colors.grey,
+              onPressed: () => _onItemTapped(3),
             ),
           ],
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _onItemTapped(2),
+        onPressed: () => _onItemTapped(1),
         backgroundColor: Color(0xFFFF3131),
         child: Icon(Icons.add, color: Colors.white, size: 30),
       ),
@@ -93,18 +97,6 @@ class HomeTab extends StatelessWidget {
     return Center(
       child: Text(
         'Home Screen',
-        style: TextStyle(color: Colors.white),
-      ),
-    );
-  }
-}
-
-class GroupTab extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Group Screen',
         style: TextStyle(color: Colors.white),
       ),
     );
@@ -131,6 +123,26 @@ class ProfileTab extends StatelessWidget {
         'Profile Screen',
         style: TextStyle(color: Colors.white),
       ),
+    );
+  }
+}
+
+// GroupTab now a separate page
+class GroupTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Group Screen'),
+        backgroundColor: Color(0xFF1D1F24),
+      ),
+      body: Center(
+        child: Text(
+          'Group Screen',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+      backgroundColor: Color(0xFF000000),
     );
   }
 }
