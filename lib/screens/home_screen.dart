@@ -118,7 +118,7 @@ class NotificationsTab extends StatelessWidget {
 class ProfileTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text(
         'Profile Screen',
         style: TextStyle(color: Colors.white),
@@ -136,7 +136,7 @@ class GroupTab extends StatelessWidget {
         title: Text('Group Screen'),
         backgroundColor: Color(0xFF1D1F24),
       ),
-      body: Center(
+      body: const Center(
         child: Text(
           'Group Screen',
           style: TextStyle(color: Colors.white),
