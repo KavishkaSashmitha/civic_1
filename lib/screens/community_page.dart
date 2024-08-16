@@ -1,3 +1,4 @@
+import 'package:civic_1/screens/Form_Community.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -8,7 +9,7 @@ class GroupPage extends StatefulWidget {
 }
 
 class _GroupPageState extends State<GroupPage> {
-  int _currentIndex = 1;
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -25,33 +26,30 @@ class _GroupPageState extends State<GroupPage> {
                 fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
-              maxLines: 1, // Use maxLines to limit the number of lines
+              maxLines: 1,
             ),
           ),
         ),
-        backgroundColor:
-            Colors.black, // Correct property for AppBar background color
+        backgroundColor: Colors.black,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            SizedBox(height: 20), // Add space from the top
+            SizedBox(height: 20),
             Center(
               child: Padding(
-                padding: const EdgeInsets.all(
-                    8.0), // Add padding around the ToggleSwitch
+                padding: const EdgeInsets.all(8.0),
                 child: ToggleSwitch(
                   minWidth: 120.0,
                   cornerRadius: 20.0,
                   activeBgColors: [
-                    [Colors.white], // Change active background color
-                    [Colors.white] // Change active background color
+                    [Colors.white],
+                    [Colors.white]
                   ],
-                  activeFgColor: Colors.red, // Change text color when active
+                  activeFgColor: Colors.red,
                   inactiveBgColor: Colors.grey,
-                  inactiveFgColor:
-                      Colors.black, // Change text color when inactive
+                  inactiveFgColor: Colors.black,
                   initialLabelIndex: _currentIndex,
                   totalSwitches: 2,
                   labels: ['UPCOMING', 'PAST EVENTS'],
@@ -67,11 +65,19 @@ class _GroupPageState extends State<GroupPage> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Form_Community()),
+          );
+        },
+        child: Icon(Icons.add),
+        backgroundColor: Colors.red,
+      ),
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.endFloat, // Aligns to the right corner
       backgroundColor: Colors.black,
     );
   }
 }
-
-void main() => runApp(MaterialApp(
-      home: GroupPage(),
-    ));
