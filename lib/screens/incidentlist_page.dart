@@ -17,7 +17,7 @@ class _IncidentlistPageState extends State<IncidentlistPage> {
       appBar: AppBar(
         title: Center(
           child: Text(
-            'Events',
+            'Incidents',
             style: GoogleFonts.poppins(
               fontSize: 24,
               color: Colors.white,
