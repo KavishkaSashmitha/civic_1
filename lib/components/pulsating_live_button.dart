@@ -1,3 +1,4 @@
+import 'package:civic_1/screens/Add_Incident_page.dart';
 import 'package:flutter/material.dart';
 
 class PulsatingLiveButton extends StatefulWidget {
@@ -40,7 +41,7 @@ class _PulsatingLiveButtonState extends State<PulsatingLiveButton>
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddIncidentPage()),
+            MaterialPageRoute(builder: (context) => AddIncidentScreen()),
           );
         },
         backgroundColor: Colors.red,
