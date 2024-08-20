@@ -1,3 +1,4 @@
+import '/screens/incidentlist_page.dart';
 import 'package:flutter/material.dart';
 import 'screens/home_page.dart';
 import 'screens/community_page.dart';
@@ -13,6 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
         primaryColor: Color(0xFF1D1F24),
@@ -35,7 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
     HomePage(),
     PlaceholderPage(),
     NotificationsPage(),
-    ProfilePage(),
+    IncidentlistPage(),
+    ProfilePage()
   ];
 
   void _onItemTapped(int index) {
@@ -70,8 +73,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             IconButton(
               icon: Icon(Icons.group),
-              color: Colors.grey,
-              onPressed: () => _onItemTapped(1),
+              color: _selectedIndex == 3 ? Colors.white : Colors.grey,
+              onPressed: () => _onItemTapped(3),
             ),
             SizedBox(width: 40), // Space for the floating action button
             IconButton(
@@ -81,8 +84,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             IconButton(
               icon: Icon(Icons.person),
-              color: _selectedIndex == 3 ? Colors.white : Colors.grey,
-              onPressed: () => _onItemTapped(3),
+              color: _selectedIndex == 4 ? Colors.white : Colors.grey,
+              onPressed: () => _onItemTapped(4),
             ),
           ],
         ),
