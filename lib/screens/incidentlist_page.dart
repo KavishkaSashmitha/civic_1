@@ -16,17 +16,35 @@ class _IncidentlistPageState extends State<IncidentlistPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            'Incidents',
-            style: GoogleFonts.poppins(
-              fontSize: 24,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
         backgroundColor: Colors.black,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Row(
+          children: [
+            Spacer(),
+            Text(
+              'Incidents',
+              style: GoogleFonts.poppins(
+                fontSize: 24,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Spacer(),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.account_circle, color: Colors.white),
+            onPressed: () {},
+          ),
+          SizedBox(width: 16),
+        ],
       ),
       body: Column(
         children: [
@@ -150,7 +168,7 @@ class ActiveCasesScreen extends StatelessWidget {
                       padding:
                           const EdgeInsets.only(top: 10, bottom: 10, right: 10),
                       child: SizedBox(
-                        width: 60, // Set a fixed width for the image column
+                        width: 60,
                         child: Column(
                           children: [
                             ClipRRect(
