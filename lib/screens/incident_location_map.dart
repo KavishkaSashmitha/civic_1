@@ -21,7 +21,7 @@ class _IncidentLocationMapState extends State<IncidentLocationMap> {
   Widget content() {
     return FlutterMap(
       options: MapOptions(
-        initialCenter: LatLng(51.509364, -0.128928),
+        initialCenter: LatLng(6.9271, 79.9612),
         initialZoom: 11,
         interactionOptions:
             InteractionOptions(flags: ~InteractiveFlag.doubleTapDragZoom),
