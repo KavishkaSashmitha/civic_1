@@ -26,7 +26,31 @@ class _IncidentLocationMapState extends State<IncidentLocationMap> {
         interactionOptions:
             InteractionOptions(flags: ~InteractiveFlag.doubleTapDragZoom),
       ),
-      children: [openStreetMapTileLayer],
+      children: [
+        openStreetMapTileLayer,
+        MarkerLayer(markers: [
+          Marker(
+              point: LatLng(6.9572, 79.9554),
+              width: 60,
+              height: 60,
+              alignment: Alignment.centerLeft,
+              child: Icon(
+                Icons.location_pin,
+                size: 60,
+                color: Colors.red,
+              )),
+          Marker(
+              point: LatLng(6.9579, 79.9771),
+              width: 60,
+              height: 60,
+              alignment: Alignment.centerLeft,
+              child: Icon(
+                Icons.location_pin,
+                size: 60,
+                color: Colors.red,
+              ))
+        ])
+      ],
     );
   }
 }
