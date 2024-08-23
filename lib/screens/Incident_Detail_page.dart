@@ -1,3 +1,5 @@
+import 'package:civic_1/components/pulsating_live_button.dart';
+import 'package:civic_1/screens/incident_location_map.dart';
 import 'package:civic_1/screens/incidentlist_page.dart';
 import 'package:flutter/material.dart';
 
@@ -53,10 +55,21 @@ class IncidentReportScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(width: 10),
-                      CircleAvatar(
-                        radius: 15,
-                        backgroundColor: Colors.grey[800],
-                        child: Icon(Icons.map, color: Colors.white),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => IncidentLocationMap(),
+                            ),
+                          );
+                        },
+                        behavior: HitTestBehavior.opaque,
+                        child: CircleAvatar(
+                          radius: 15,
+                          backgroundColor: Colors.grey[800],
+                          child: Icon(Icons.map, color: Colors.white),
+                        ),
                       ),
                     ],
                   ),
