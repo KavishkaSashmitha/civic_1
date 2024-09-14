@@ -37,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
     HomePage(),
     PlaceholderPage(),
     NotificationsPage(),
-    IncidentlistPage(),
+    GroupPage(),
     ProfilePage()
   ];
 
@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (index == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => GroupPage()),
+        MaterialPageRoute(builder: (context) => IncidentlistPage()),
       );
     } else {
       setState(() {
