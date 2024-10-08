@@ -1,3 +1,5 @@
+import 'package:civic_1/screens/register_page.dart';
+import 'package:firebase_core/firebase_core.dart';
 import '/screens/incidentlist_page.dart';
 import 'package:flutter/material.dart';
 import 'screens/home_page.dart';
@@ -6,7 +8,9 @@ import 'screens/notifications_page.dart';
 import 'screens/profile_page.dart';
 import 'screens/placeholder_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
@@ -19,7 +23,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         primaryColor: Color(0xFF1D1F24),
       ),
-      home: HomeScreen(),
+      home: SignUpPage(),
     );
   }
 }
