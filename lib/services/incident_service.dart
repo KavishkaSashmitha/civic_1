@@ -40,4 +40,31 @@ class IncidentService {
       'timeline': [],
     });
   }
+
+  Future<void> addIncidentTimeline({
+    required String incidentId,
+    required String eventDescription,
+  }) async {
+    String? userId = _auth.currentUser?.uid;
+
+    try {
+      // Add the timeline entry directly to a subcollection
+      await _firestore
+          .collection('incidents')
+          .doc(incidentId)
+          .collection('timeline')
+          .add({
+        'eventDescription': eventDescription,
+        'timestamp': FieldValue.serverTimestamp(),
+        'userId': userId,
+      });
+    } catch (e) {
+      print('Error adding incident timeline: $e');
+      throw e; // Optional: rethrow if you want to handle it in the UI
+    }
+  }
+
+  Stream<DocumentSnapshot> getIncidentTimeline(String incidentId) {
+    return _firestore.collection('incidents').doc(incidentId).snapshots();
+  }
 }
