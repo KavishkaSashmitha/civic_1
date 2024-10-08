@@ -37,6 +37,7 @@ class IncidentService {
       'imageUrls': imageUrls,
       'userId': userId,
       'timestamp': FieldValue.serverTimestamp(),
+      'timeline': [],
     });
   }
 }

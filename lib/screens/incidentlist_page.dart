@@ -1,5 +1,6 @@
 import 'package:civic_1/components/pulsating_live_button.dart';
 import 'package:civic_1/screens/Incident_Detail_page.dart';
+import 'package:civic_1/screens/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -41,7 +42,14 @@ class _IncidentlistPageState extends State<IncidentlistPage> {
         actions: [
           IconButton(
             icon: Icon(Icons.account_circle, color: Colors.white),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SettingsPage(),
+                ),
+              );
+            },
           ),
           SizedBox(width: 16),
         ],
