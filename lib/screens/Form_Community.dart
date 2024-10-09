@@ -1,6 +1,9 @@
+import 'package:civic_1/screens/LocationPickerScreen.dart';
+import 'package:civic_1/services/community_service.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:civic_1/model/event.dart';
 
 class Form_Community extends StatefulWidget {
   @override
@@ -201,69 +204,25 @@ class _Form_CommunityState extends State<Form_Community> {
       );
       return;
     }
-    // Handle form submission logic here
-  }
-}
 
-class LocationPickerScreen extends StatefulWidget {
-  @override
-  _LocationPickerScreenState createState() => _LocationPickerScreenState();
-}
-
-class _LocationPickerScreenState extends State<LocationPickerScreen> {
-  GoogleMapController? _mapController;
-  LatLng? _pickedLocation;
-
-  @override
-  void dispose() {
-    _mapController?.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Select Location'),
-        backgroundColor: Colors.black,
-      ),
-      body: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target:
-              LatLng(37.7749, -122.4194), // Default location (San Francisco)
-          zoom: 14,
-        ),
-        onMapCreated: (controller) {
-          _mapController = controller;
-        },
-        onTap: (location) {
-          setState(() {
-            _pickedLocation = location;
-          });
-        },
-        markers: _pickedLocation != null
-            ? {
-                Marker(
-                  markerId: MarkerId('selected-location'),
-                  position: _pickedLocation!,
-                ),
-              }
-            : {},
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (_pickedLocation != null) {
-            Navigator.of(context).pop(_pickedLocation);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Please select a location.')),
-            );
-          }
-        },
-        child: Icon(Icons.check),
-        backgroundColor: Color(0xFFEAFEF1),
-      ),
-      backgroundColor: Colors.black,
+    final event = Event(
+      organizationName: _orgNameController.text,
+      eventName: _eventNameController.text,
+      description: _descriptionController.text,
+      eventDate: _selectedDate!,
+      latitude: _selectedLocation!.latitude,
+      longitude: _selectedLocation!.longitude,
     );
+
+    final firebaseService = FirebaseService();
+    firebaseService.addEvent(event).then((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Event added successfully!')),
+      );
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error adding event: $error')),
+      );
+    });
   }
 }
