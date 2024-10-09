@@ -67,4 +67,11 @@ class IncidentService {
   Stream<DocumentSnapshot> getIncidentTimeline(String incidentId) {
     return _firestore.collection('incidents').doc(incidentId).snapshots();
   }
+
+  // Fetch incidents including the 'title', 'organization', 'description', and 'imageUrls' fields
+  Future<List<DocumentSnapshot>> getIncidents() async {
+    QuerySnapshot querySnapshot =
+        await _firestore.collection('incidents').get();
+    return querySnapshot.docs;
+  }
 }
