@@ -1,6 +1,8 @@
 import 'package:civic_1/components/pulsating_live_button.dart';
 import 'package:civic_1/screens/Incident_Detail_page.dart';
 import 'package:civic_1/screens/settings_page.dart';
+import 'package:civic_1/services/incident_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -12,6 +14,7 @@ class IncidentlistPage extends StatefulWidget {
 
 class _IncidentlistPageState extends State<IncidentlistPage> {
   int _currentIndex = 0;
+  final IncidentService _incidentService = IncidentService();
 
   @override
   Widget build(BuildContext context) {
@@ -91,128 +94,158 @@ class _IncidentlistPageState extends State<IncidentlistPage> {
 }
 
 class ActiveCasesScreen extends StatelessWidget {
+  final IncidentService _incidentService = IncidentService();
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ListView.builder(
-        padding: EdgeInsets.all(16),
-        itemCount: 4, // Number of cards to display
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => IncidentReportScreen()),
-                );
-              },
-              child: Card(
-                color: const Color.fromARGB(255, 61, 52, 52),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                top: 13.0, bottom: 8.0, left: 15),
-                            child: Text(
-                              'Report of Bribery Incident',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 20,
-                                height: 1.1,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 15),
-                            child: Text(
-                              'Spotted Bribery Incident at of Department of Immigration...',
-                              style: TextStyle(
-                                color: Colors.white70,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(bottom: 8.0, left: 15),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Icon(
-                                  Icons.location_pin,
-                                  color: Colors.red,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Department of Immigration',
+    return FutureBuilder<List<DocumentSnapshot>>(
+      future: _incidentService.getIncidents(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No active cases found.'));
+        }
+
+        // List of incidents
+        List<DocumentSnapshot> incidents = snapshot.data!;
+
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListView.builder(
+            padding: EdgeInsets.all(16),
+            itemCount: incidents.length,
+            itemBuilder: (context, index) {
+              // Extract incident data
+              var incident = incidents[index].data() as Map<String, dynamic>;
+              String title = incident['title'] ?? 'No Title';
+              String organization =
+                  incident['organization'] ?? 'No Organization';
+              String description = incident['description'] ?? 'No Description';
+              List<dynamic> imageUrls = incident['imageUrls'] ?? [];
+              String imageUrl = imageUrls.isNotEmpty
+                  ? imageUrls[0] // First image in the list
+                  : 'https://via.placeholder.com/150'; // Placeholder if no image
+// Get the document ID
+              String incidentId = incidents[index].id;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => IncidentReportScreen(
+                                incidentId: incidentId, // Pass incident ID
+                              )),
+                    );
+                  },
+                  child: Card(
+                    color: const Color.fromARGB(255, 61, 52, 52),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 13.0, bottom: 8.0, left: 15),
+                                child: Text(
+                                  title,
                                   style: TextStyle(
-                                    color: Colors.orange,
                                     fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    height: 1.1,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 15),
+                                child: Text(
+                                  description,
+                                  style: TextStyle(
+                                    color: Colors.white70,
                                   ),
                                   overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
+                                  maxLines: 2,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    bottom: 8.0, left: 15),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Icon(
+                                      Icons.location_pin,
+                                      color: Colors.red,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      organization,
+                                      style: TextStyle(
+                                        color: Colors.orange,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              top: 10, bottom: 10, right: 10),
+                          child: SizedBox(
+                            width: 60,
+                            child: Column(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(
+                                    imageUrl,
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Center(
+                                          child: Text('Image failed to load'));
+                                    },
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Live',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(top: 10, bottom: 10, right: 10),
-                      child: SizedBox(
-                        width: 60,
-                        child: Column(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(
-                                'https://th.bing.com/th/id/OIP.iEiyLn0VVjVe8qknIDtwbQHaFO?w=1899&h=1340&rs=1&pid=ImgDetMain',
-                                width: 60,
-                                height: 60,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Center(
-                                      child: Text('Image failed to load'));
-                                },
-                              ),
-                            ),
-                            SizedBox(
-                                height:
-                                    8), // Space between image and "Live" text
-                            Text(
-                              'Live',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          );
-        },
-      ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

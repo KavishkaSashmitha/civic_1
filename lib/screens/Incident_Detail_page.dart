@@ -1,9 +1,74 @@
-import 'package:civic_1/components/pulsating_live_button.dart';
-import 'package:civic_1/screens/incident_location_map.dart';
-import 'package:civic_1/screens/incidentlist_page.dart';
+import 'package:civic_1/components/incident_location_map.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:civic_1/screens/incidentlist_page.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:latlong2/latlong.dart';
 
 class IncidentReportScreen extends StatelessWidget {
+  final String incidentId;
+
+  IncidentReportScreen({required this.incidentId});
+
+  Future<Map<String, dynamic>?> _getIncidentDetails() async {
+    DocumentSnapshot doc = await FirebaseFirestore.instance
+        .collection('incidents')
+        .doc(incidentId)
+        .get();
+
+    if (doc.exists) {
+      return doc.data() as Map<String, dynamic>;
+    }
+    return null; // Incident not found
+  }
+
+  // Function to reverse geocode latitude and longitude to a place name
+  Future<String> _getPlaceName(String location) async {
+    try {
+      List<String> latLng = location.split(',');
+      double latitude = double.parse(latLng[0]);
+      double longitude = double.parse(latLng[1]);
+
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude);
+      Placemark place = placemarks.first;
+
+      return "${place.street ?? ''}, ${place.locality ?? ''}, ${place.country ?? ''}"; // Format the place name as desired
+    } catch (e) {
+      return "Unknown Location"; // Return this if reverse geocoding fails
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchIncidentTimeline() async {
+    QuerySnapshot timelineSnapshot = await FirebaseFirestore.instance
+        .collection('incidents')
+        .doc(incidentId)
+        .collection('timeline')
+        .orderBy('timestamp', descending: false)
+        .get();
+
+    return timelineSnapshot.docs
+        .map((doc) => doc.data() as Map<String, dynamic>)
+        .toList();
+  }
+
+  // Function to get the time difference as a human-readable string
+  String _timeAgo(Timestamp timestamp) {
+    DateTime now = DateTime.now();
+    DateTime incidentTime = timestamp.toDate();
+    Duration difference = now.difference(incidentTime);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago';
+    } else {
+      return 'Just now';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,110 +86,178 @@ class IncidentReportScreen extends StatelessWidget {
           },
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image section
-            Container(
-              height: 200,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(
-                    'https://th.bing.com/th/id/OIP.iEiyLn0VVjVe8qknIDtwbQHaFO?w=1899&h=1340&rs=1&pid=ImgDetMain',
-                  ),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
+      body: FutureBuilder<Map<String, dynamic>?>(
+        future: _getIncidentDetails(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data == null) {
+            return Center(child: Text('Incident not found.'));
+          }
 
-            // Title and Status Section
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        '1456/A Batharamula rd,...',
-                        style: TextStyle(
-                          color: Colors.yellow[600],
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+          var incidentData = snapshot.data;
+          String? location = incidentData?['location'];
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Image section
+                Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(
+                        incidentData?['imageUrls'] != null &&
+                                (incidentData!['imageUrls'] as List).isNotEmpty
+                            ? incidentData['imageUrls'][0]
+                            : 'https://via.placeholder.com/200', // Placeholder if no image
                       ),
-                      SizedBox(width: 10),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => IncidentLocationMap(),
-                            ),
-                          );
-                        },
-                        behavior: HitTestBehavior.opaque,
-                        child: CircleAvatar(
-                          radius: 15,
-                          backgroundColor: Colors.grey[800],
-                          child: Icon(Icons.map, color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Report of Bribery Incident',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  SizedBox(height: 10),
-                  Row(
+                ),
+
+                // Title and Status Section
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.circle, color: Colors.red, size: 12),
-                      SizedBox(width: 5),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: FutureBuilder<String>(
+                              future: _getPlaceName(location ?? ''),
+                              builder: (context, locationSnapshot) {
+                                if (locationSnapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Text('Fetching location...');
+                                }
+                                return Text(
+                                  locationSnapshot.data ?? 'Unknown Location',
+                                  style: TextStyle(
+                                    color: Colors.yellow[600],
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          GestureDetector(
+                            onTap: () {
+                              if (location != null) {
+                                List<String> latLng = location.split(',');
+                                if (latLng.length == 2) {
+                                  double latitude = double.parse(latLng[0]);
+                                  double longitude = double.parse(latLng[1]);
+
+                                  LatLng incidentLatLng =
+                                      LatLng(latitude, longitude);
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => IncidentLocationMap(
+                                        incidentLocation: incidentLatLng,
+                                        address: location,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                            behavior: HitTestBehavior.opaque,
+                            child: CircleAvatar(
+                              radius: 15,
+                              backgroundColor: Colors.grey[800],
+                              child: Icon(Icons.map, color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 5), // Add some space between the texts
                       Text(
-                        'Live',
+                        incidentData?['organization'] ??
+                            'Department of Immigration', // Display organization as fallback
                         style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 16,
+                          color: Colors.white70,
+                          fontSize: 14,
                         ),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        incidentData?['title'] ?? 'Report of Bribery Incident',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(
+                          height: 5), // Space between title and description
+                      Text(
+                        incidentData?['description'] ??
+                            'No description available', // Add this line to display the description
+                        style: TextStyle(
+                          color: Colors
+                              .white70, // Use a lighter color for the description
+                          fontSize: 16, // Adjust the font size as needed
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Icon(Icons.circle, color: Colors.red, size: 12),
+                          SizedBox(width: 5),
+                          Text(
+                            'Live',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
+                ),
 
-            // Timeline Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                children: [
-                  _buildTimelineEntry(
-                    context,
-                    '10 hours ago',
-                    'Spotted Bribery Incident at Department of Immigration',
+                // Timeline Section
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: FutureBuilder<List<Map<String, dynamic>>>(
+                    future: _fetchIncidentTimeline(),
+                    builder: (context, timelineSnapshot) {
+                      if (!timelineSnapshot.hasData) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+
+                      List<Map<String, dynamic>> timeline =
+                          timelineSnapshot.data!;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: timeline.map((entry) {
+                          String time =
+                              _timeAgo(entry['timestamp'] as Timestamp);
+                          String detail = entry['eventDescription'] ??
+                              'No event description available';
+
+                          return _buildTimelineEntry(context, time, detail);
+                        }).toList(),
+                      );
+                    },
                   ),
-                  _buildTimelineEntry(
-                    context,
-                    '8 hours ago',
-                    'Witness Reported Incident to Police Station of Batharamula',
-                  ),
-                  _buildTimelineEntry(
-                    context,
-                    '10 minutes ago',
-                    'There has been no follow-up action from the police regarding the reported bribery incident',
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
