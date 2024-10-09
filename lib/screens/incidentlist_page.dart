@@ -128,7 +128,8 @@ class ActiveCasesScreen extends StatelessWidget {
               String imageUrl = imageUrls.isNotEmpty
                   ? imageUrls[0] // First image in the list
                   : 'https://via.placeholder.com/150'; // Placeholder if no image
-
+// Get the document ID
+              String incidentId = incidents[index].id;
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: GestureDetector(
@@ -136,7 +137,9 @@ class ActiveCasesScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => IncidentReportScreen()),
+                          builder: (context) => IncidentReportScreen(
+                                incidentId: incidentId, // Pass incident ID
+                              )),
                     );
                   },
                   child: Card(
