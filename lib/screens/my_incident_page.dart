@@ -1,6 +1,7 @@
 import 'package:civic_1/screens/Add_incident_update_page.dart';
 import 'package:civic_1/services/incident_service.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -42,6 +43,23 @@ class _MyIncidentsPageState extends State<MyIncidentsPage> {
         .toList();
   }
 
+  // Function to reverse geocode latitude and longitude to a place name
+  Future<String> _getPlaceName(String location) async {
+    try {
+      List<String> latLng = location.split(',');
+      double latitude = double.parse(latLng[0]);
+      double longitude = double.parse(latLng[1]);
+
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude);
+      Placemark place = placemarks.first;
+
+      return "${place.street}, ${place.locality}, ${place.country}"; // Format the place name as desired
+    } catch (e) {
+      return "Unknown Location"; // Return this if reverse geocoding fails
+    }
+  }
+
   void _navigateToAddUpdate(String incidentId) {
     Navigator.push(
       context,
@@ -71,6 +89,9 @@ class _MyIncidentsPageState extends State<MyIncidentsPage> {
               if (incidentData == null) return SizedBox(); // Skip if null
 
               String incidentId = _incidents[index].id;
+
+              String? location =
+                  incidentData['location']; // Extract location here
 
               return FutureBuilder<List<Map<String, dynamic>>>(
                 future: _fetchIncidentTimeline(incidentId),
@@ -130,17 +151,39 @@ class _MyIncidentsPageState extends State<MyIncidentsPage> {
                                       ),
                                       const SizedBox(width: 4),
                                       Expanded(
-                                        child: Text(
-                                          incidentData['location'] ??
-                                              'Location not specified', // Handle null location
-                                          style: GoogleFonts.poppins(
-                                            color: Colors.orange,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
+                                        child: location != null
+                                            ? FutureBuilder<String>(
+                                                future: _getPlaceName(location),
+                                                builder: (context,
+                                                    locationSnapshot) {
+                                                  if (!locationSnapshot
+                                                      .hasData) {
+                                                    return const Text(
+                                                        'Fetching location...');
+                                                  }
+                                                  return Text(
+                                                    locationSnapshot.data ??
+                                                        'Unknown Location', // Display the place name
+                                                    style: GoogleFonts.poppins(
+                                                      color: Colors.orange,
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  );
+                                                },
+                                              )
+                                            : Text(
+                                                'Location not specified', // Handle null location
+                                                style: GoogleFonts.poppins(
+                                                  color: Colors.orange,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
                                       ),
                                     ],
                                   ),
