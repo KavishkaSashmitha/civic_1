@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:civic_1/model/event.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Form_Community extends StatefulWidget {
   @override
@@ -194,7 +195,7 @@ class _Form_CommunityState extends State<Form_Community> {
     );
   }
 
-  void _handleSubmit() {
+  void _handleSubmit() async {
     if (_orgNameController.text.isEmpty ||
         _eventNameController.text.isEmpty ||
         _selectedDate == null ||
@@ -205,7 +206,17 @@ class _Form_CommunityState extends State<Form_Community> {
       return;
     }
 
+    // Get the logged user's ID
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('User not logged in. Please log in first.')),
+      );
+      return;
+    }
+
     final event = Event(
+      userId: user.uid, // Pass the logged user's ID
       organizationName: _orgNameController.text,
       eventName: _eventNameController.text,
       description: _descriptionController.text,

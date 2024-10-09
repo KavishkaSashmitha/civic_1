@@ -1,7 +1,6 @@
 import 'package:civic_1/exceptions/auth_exception.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -52,4 +51,38 @@ class AuthService {
       print('Error signing in: $e');
     }
   }
+
+  // Method to get the logged-in user's details from Firestore
+  Future<UserData?> getLoggedUser() async {
+    try {
+      User? currentUser = _auth.currentUser;
+      if (currentUser != null) {
+        DocumentSnapshot<Map<String, dynamic>> userDoc =
+            await _firestore.collection('users').doc(currentUser.uid).get();
+
+        if (userDoc.exists) {
+          return UserData(
+            name: userDoc.data()?['name'] ?? '',
+            email: userDoc.data()?['email'] ?? '',
+            events: userDoc.data()?['events'] ?? [],
+          );
+        }
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+    }
+    return null;
+  }
+}
+
+class UserData {
+  final String name;
+  final String email;
+  final List<dynamic> events;
+
+  UserData({
+    required this.name,
+    required this.email,
+    required this.events,
+  });
 }

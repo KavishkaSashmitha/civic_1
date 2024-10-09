@@ -6,7 +6,7 @@ import 'package:civic_1/screens/Form_Community.dart';
 import 'package:civic_1/screens/event_detail.dart';
 import 'package:civic_1/services/community_service.dart';
 import 'package:civic_1/model/event.dart';
-import 'package:url_launcher/url_launcher.dart'; // Add this import
+import 'package:url_launcher/url_launcher.dart';
 
 class GroupPage extends StatefulWidget {
   @override
@@ -91,12 +91,12 @@ class _GroupPageState extends State<GroupPage> {
                   minWidth: 120.0,
                   cornerRadius: 20.0,
                   activeBgColors: [
-                    [Colors.white],
-                    [Colors.white]
+                    [Colors.red],
+                    [Colors.red]
                   ],
-                  activeFgColor: Colors.red,
+                  activeFgColor: Colors.white,
                   inactiveBgColor: Colors.grey,
-                  inactiveFgColor: Colors.black,
+                  inactiveFgColor: Colors.white,
                   initialLabelIndex: _currentIndex,
                   totalSwitches: 2,
                   labels: ['UPCOMING', 'PAST EVENTS'],
@@ -113,15 +113,23 @@ class _GroupPageState extends State<GroupPage> {
             Expanded(
               child: _filteredEvents.isEmpty
                   ? Center(
-                      child: Text('No events to display',
-                          style: TextStyle(color: Colors.white)))
+                      child: Text(
+                        'No events to display',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )
                   : ListView.builder(
                       itemCount: _filteredEvents.length,
                       itemBuilder: (context, index) {
                         final event = _filteredEvents[index];
                         return Card(
-                          color: Colors.grey[900],
+                          color: Colors.grey[850],
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                           child: ListTile(
+                            leading: Icon(Icons.event, color: Colors.white),
                             title: Text(
                               event.eventName,
                               style: TextStyle(
@@ -136,7 +144,7 @@ class _GroupPageState extends State<GroupPage> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
-                                  icon: Icon(Icons.map, color: Colors.white),
+                                  icon: Icon(Icons.map, color: Colors.red),
                                   onPressed: () =>
                                       _openMap(event.latitude, event.longitude),
                                 ),
@@ -169,7 +177,7 @@ class _GroupPageState extends State<GroupPage> {
           );
           _loadEvents();
         },
-        child: Icon(Icons.add),
+        child: Icon(Icons.add, color: Colors.white),
         backgroundColor: Colors.red,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
