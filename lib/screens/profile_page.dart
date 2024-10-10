@@ -2,7 +2,7 @@ import 'package:civic_1/services/auth_service.dart';
 import 'package:civic_1/services/community_service.dart';
 import 'package:flutter/material.dart';
 import 'package:civic_1/model/event.dart';
-import 'package:civic_1/screens/edit_event_screen.dart';
+import 'package:civic_1/screens/EditEventPage.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -110,7 +110,7 @@ class _ProfilePageState extends State<ProfilePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EditEventScreen(event: event),
+        builder: (context) => EditEventPage(event: event),
       ),
     ).then((_) {
       setState(() {}); // Refresh the UI after editing the event

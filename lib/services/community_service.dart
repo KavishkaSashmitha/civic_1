@@ -28,6 +28,23 @@ class FirebaseService {
     }
   }
 
+  Future<List<Event>> getUserEvents(String userId) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('events')
+          .where('userId', isEqualTo: userId) // Filter by userId
+          .get();
+      return querySnapshot.docs.map((doc) {
+        final event = Event.fromMap(doc.data() as Map<String, dynamic>);
+        event.id = doc.id; // Assign the document ID to the event
+        return event;
+      }).toList();
+    } catch (e) {
+      print('Error getting events: $e');
+      throw e;
+    }
+  }
+
   Future<void> deleteEvent(String eventId) async {
     try {
       await _firestore.collection('events').doc(eventId).delete();
@@ -39,15 +56,20 @@ class FirebaseService {
   }
 
   Future<void> editEvent(String eventId, Event updatedEvent) async {
-    try {
-      await _firestore
-          .collection('events')
-          .doc(eventId)
-          .update(updatedEvent.toMap());
-      print('Event updated successfully!');
-    } catch (e) {
-      print('Error updating event: $e');
-      throw e;
+  try {
+    // Check if the eventId is valid
+    if (eventId.isEmpty) {
+      throw 'Event ID cannot be empty';
     }
+
+    // Update the Firestore document
+    await _firestore.collection('events').doc(eventId).update(updatedEvent.toMap());
+
+    print('Event updated successfully!');
+  } catch (e) {
+    print('Error updating event: $e');
+    throw e;
   }
+}
+
 }

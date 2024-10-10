@@ -1,3 +1,4 @@
+import 'package:civic_1/screens/MyEventsTab.dart';
 import 'package:civic_1/screens/my_incident_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,7 +7,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3, // Number of tabs
+      length: 4, // Adjust the length for the number of tabs
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black,
@@ -29,6 +30,7 @@ class SettingsPage extends StatelessWidget {
               Tab(text: 'My Incidents'),
               Tab(text: 'My Profile'),
               Tab(text: 'Notifications'),
+              Tab(text: 'My Events'), // Your new tab added
             ],
           ),
         ),
@@ -37,6 +39,7 @@ class SettingsPage extends StatelessWidget {
             MyIncidentsPage(),
             MyProfileTab(),
             NotificationsTab(),
+            MyEventsTab(), // Replace NewTab with MyEventsTab that filters events
           ],
         ),
       ),

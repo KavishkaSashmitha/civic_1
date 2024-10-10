@@ -7,6 +7,7 @@ import 'package:civic_1/screens/event_detail.dart';
 import 'package:civic_1/services/community_service.dart';
 import 'package:civic_1/model/event.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:civic_1/screens/settings_page.dart';
 
 class GroupPage extends StatefulWidget {
   @override
@@ -78,6 +79,17 @@ class _GroupPageState extends State<GroupPage> {
           ),
         ),
         backgroundColor: Colors.black,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.account_circle, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
