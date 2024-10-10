@@ -28,18 +28,20 @@ class SettingsPage extends StatelessWidget {
             labelStyle: GoogleFonts.poppins(fontWeight: FontWeight.bold),
             tabs: const [
               Tab(text: 'My Incidents'),
+              Tab(text: 'My Events'),
               Tab(text: 'My Profile'),
               Tab(text: 'Notifications'),
-              Tab(text: 'My Events'), // Your new tab added
+              // Your new tab added
             ],
           ),
         ),
         body: TabBarView(
           children: [
             MyIncidentsPage(),
+            MyEventsTab(),
             MyProfileTab(),
             NotificationsTab(),
-            MyEventsTab(), // Replace NewTab with MyEventsTab that filters events
+            // Replace NewTab with MyEventsTab that filters events
           ],
         ),
       ),
