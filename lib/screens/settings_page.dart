@@ -1,5 +1,6 @@
 import 'package:civic_1/screens/MyEventsTab.dart';
 import 'package:civic_1/screens/my_incident_page.dart';
+import 'package:civic_1/screens/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -38,8 +39,12 @@ class SettingsPage extends StatelessWidget {
         body: TabBarView(
           children: [
             MyIncidentsPage(),
+<<<<<<< Updated upstream
             MyEventsTab(),
             MyProfileTab(),
+=======
+            ProfilePage(),
+>>>>>>> Stashed changes
             NotificationsTab(),
             // Replace NewTab with MyEventsTab that filters events
           ],
