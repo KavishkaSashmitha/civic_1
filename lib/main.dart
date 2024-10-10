@@ -1,3 +1,5 @@
+import 'package:civic_1/screens/Add_petition.dart';
+import 'package:civic_1/screens/Petition_screen.dart';
 import 'package:civic_1/screens/register_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import '/screens/incidentlist_page.dart';
@@ -5,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'screens/home_page.dart';
 import 'screens/community_page.dart';
 import 'screens/notifications_page.dart';
-import 'screens/profile_page.dart';
+
 import 'screens/placeholder_page.dart';
 
 void main() async {
@@ -42,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
     PlaceholderPage(),
     NotificationsPage(),
     GroupPage(),
-    ProfilePage()
+    PetitionPage()
   ];
 
   void _onItemTapped(int index) {
