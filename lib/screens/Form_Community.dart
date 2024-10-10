@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:civic_1/screens/LocationPickerScreen.dart';
 import 'package:civic_1/services/community_service.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:civic_1/model/event.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 
 class Form_Community extends StatefulWidget {
   @override
@@ -14,6 +16,7 @@ class Form_Community extends StatefulWidget {
 class _Form_CommunityState extends State<Form_Community> {
   DateTime? _selectedDate;
   LatLng? _selectedLocation;
+  File? _image;
 
   final TextEditingController _orgNameController = TextEditingController();
   final TextEditingController _eventNameController = TextEditingController();
@@ -55,7 +58,19 @@ class _Form_CommunityState extends State<Form_Community> {
       setState(() {
         _selectedLocation = pickedLocation;
         _locationController.text =
-            'Lat: ${pickedLocation.latitude}, Lng: ${pickedLocation.longitude}';
+            'Lat: ${pickedLocation.latitude.toStringAsFixed(4)}, Lng: ${pickedLocation.longitude.toStringAsFixed(4)}';
+      });
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? pickedFile =
+        await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
       });
     }
   }
@@ -67,72 +82,91 @@ class _Form_CommunityState extends State<Form_Community> {
         title: Text('Create Event'),
         backgroundColor: Colors.black,
       ),
-      body: Padding(
-        padding: EdgeInsets.all(6.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTextField(
-                controller: _orgNameController,
-                labelText: 'Organization Name',
-              ),
-              SizedBox(height: 10),
-              _buildTextField(
-                controller: _eventNameController,
-                labelText: 'Event Name',
-              ),
-              SizedBox(height: 10),
-              _buildDatePickerField(context),
-              SizedBox(height: 10),
-              _buildTextField(
-                controller: _descriptionController,
-                labelText: 'Description',
-                maxLines: 8,
-                padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 16.0),
-              ),
-              SizedBox(height: 10),
-              _buildLocationPickerField(context),
-              SizedBox(height: 30),
-              Center(
-                child: ElevatedButton(
-                  onPressed: _handleSubmit,
-                  child: Text('Submit'),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    backgroundColor: Color(0xFFEAFEF1),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.black, Color(0xFF1E1E1E)],
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildTextField(
+                  controller: _orgNameController,
+                  labelText: 'Organization Name',
+                  icon: Icons.business,
+                ),
+                SizedBox(height: 16),
+                _buildTextField(
+                  controller: _eventNameController,
+                  labelText: 'Event Name',
+                  icon: Icons.event,
+                ),
+                SizedBox(height: 16),
+                _buildDatePickerField(context),
+                SizedBox(height: 16),
+                _buildTextField(
+                  controller: _descriptionController,
+                  labelText: 'Description',
+                  maxLines: 4,
+                  icon: Icons.description,
+                ),
+                SizedBox(height: 16),
+                _buildLocationPickerField(context),
+                SizedBox(height: 24),
+                _buildImagePicker(),
+                SizedBox(height: 32),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: _handleSubmit,
+                    child: Text('Submit', style: TextStyle(fontSize: 18)),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.black,
+                      backgroundColor: Color(0xFFEAFEF1),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-      backgroundColor: Colors.black,
     );
   }
 
   Widget _buildTextField({
     required TextEditingController controller,
     required String labelText,
+    required IconData icon,
     int maxLines = 1,
-    EdgeInsetsGeometry padding = const EdgeInsets.symmetric(horizontal: 16.0),
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Color(0xFF3D3D3D),
-        borderRadius: BorderRadius.circular(8.0),
+        color: Color(0xFF2A2A2A),
+        borderRadius: BorderRadius.circular(12.0),
       ),
       child: TextField(
         controller: controller,
         decoration: InputDecoration(
           labelText: labelText,
-          labelStyle: TextStyle(color: Color(0xFFC0C0C0)),
+          labelStyle: TextStyle(color: Color(0xFFB0B0B0)),
+          prefixIcon: Icon(icon, color: Color(0xFFEAFEF1)),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
+            borderRadius: BorderRadius.circular(12.0),
             borderSide: BorderSide.none,
           ),
-          contentPadding: padding,
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
         ),
         style: TextStyle(color: Colors.white),
         maxLines: maxLines,
@@ -141,56 +175,87 @@ class _Form_CommunityState extends State<Form_Community> {
   }
 
   Widget _buildDatePickerField(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Color(0xFF3D3D3D),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      child: TextField(
-        decoration: InputDecoration(
-          labelText: 'Event Date',
-          labelStyle: TextStyle(color: Color(0xFFC0C0C0)),
-          prefixIcon: Icon(Icons.date_range, color: Colors.white),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+    return GestureDetector(
+      onTap: () => _selectDate(context),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Color(0xFF2A2A2A),
+          borderRadius: BorderRadius.circular(12.0),
         ),
-        style: TextStyle(color: Colors.white),
-        keyboardType: TextInputType.datetime,
-        onTap: () => _selectDate(context),
-        readOnly: true,
-        controller: TextEditingController(
-          text: _selectedDate != null
-              ? DateFormat('yyyy-MM-dd').format(_selectedDate!)
-              : '',
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+          child: Row(
+            children: [
+              Icon(Icons.calendar_today, color: Color(0xFFEAFEF1)),
+              SizedBox(width: 16),
+              Text(
+                _selectedDate != null
+                    ? DateFormat('yyyy-MM-dd').format(_selectedDate!)
+                    : 'Select Event Date',
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildLocationPickerField(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Color(0xFF3D3D3D),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      child: TextField(
-        controller: _locationController,
-        decoration: InputDecoration(
-          labelText: 'Location',
-          labelStyle: TextStyle(color: Color(0xFFC0C0C0)),
-          prefixIcon: Icon(Icons.map, color: Colors.white),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+    return GestureDetector(
+      onTap: () => _selectLocation(context),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Color(0xFF2A2A2A),
+          borderRadius: BorderRadius.circular(12.0),
         ),
-        style: TextStyle(color: Colors.white),
-        readOnly: true,
-        onTap: () => _selectLocation(context),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+          child: Row(
+            children: [
+              Icon(Icons.location_on, color: Color(0xFFEAFEF1)),
+              SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  _selectedLocation != null
+                      ? 'Lat: ${_selectedLocation!.latitude.toStringAsFixed(4)}, Lng: ${_selectedLocation!.longitude.toStringAsFixed(4)}'
+                      : 'Select Location',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImagePicker() {
+    return GestureDetector(
+      onTap: _pickImage,
+      child: Container(
+        height: 200,
+        decoration: BoxDecoration(
+          color: Color(0xFF2A2A2A),
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: _image != null
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(12.0),
+                child: Image.file(_image!, fit: BoxFit.cover),
+              )
+            : Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.add_photo_alternate,
+                        color: Color(0xFFEAFEF1), size: 48),
+                    SizedBox(height: 8),
+                    Text('Add Event Image',
+                        style: TextStyle(color: Color(0xFFB0B0B0))),
+                  ],
+                ),
+              ),
       ),
     );
   }
@@ -201,12 +266,11 @@ class _Form_CommunityState extends State<Form_Community> {
         _selectedDate == null ||
         _selectedLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill in all fields.')),
+        SnackBar(content: Text('Please fill in all required fields.')),
       );
       return;
     }
 
-    // Get the logged user's ID
     final User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -216,7 +280,7 @@ class _Form_CommunityState extends State<Form_Community> {
     }
 
     final event = Event(
-      userId: user.uid, // Pass the logged user's ID
+      userId: user.uid,
       organizationName: _orgNameController.text,
       eventName: _eventNameController.text,
       description: _descriptionController.text,
@@ -226,14 +290,16 @@ class _Form_CommunityState extends State<Form_Community> {
     );
 
     final firebaseService = FirebaseService();
-    firebaseService.addEvent(event).then((_) {
+    try {
+      await firebaseService.addEvent(event, image: _image);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Event added successfully!')),
       );
-    }).catchError((error) {
+      // Clear form or navigate back
+    } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error adding event: $error')),
       );
-    });
+    }
   }
 }

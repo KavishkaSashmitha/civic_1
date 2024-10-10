@@ -85,58 +85,91 @@ class _EditEventPageState extends State<EditEventPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Event', style: GoogleFonts.poppins()),
-        backgroundColor: const Color(0xFF3D3434),
+        title: Text('Edit Event',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+        backgroundColor: Colors.black,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextFormField(
-                controller: _organizationNameController,
-                decoration:
-                    const InputDecoration(labelText: 'Organization Name'),
-                validator: (value) =>
-                    value!.isEmpty ? 'Please enter an organization name' : null,
-              ),
-              TextFormField(
-                controller: _eventNameController,
-                decoration: const InputDecoration(labelText: 'Event Name'),
-                validator: (value) =>
-                    value!.isEmpty ? 'Please enter an event name' : null,
-              ),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
-                maxLines: 3,
-                validator: (value) =>
-                    value!.isEmpty ? 'Please enter a description' : null,
-              ),
-              ListTile(
-                title: const Text('Event Date'),
-                subtitle: Text(
-                  '${_selectedDate.toLocal().toString().split(' ')[0]}',
-                  style: const TextStyle(fontSize: 16),
+              _buildCard(
+                child: TextFormField(
+                  controller: _organizationNameController,
+                  decoration:
+                      const InputDecoration(labelText: 'Organization Name'),
+                  validator: (value) => value!.isEmpty
+                      ? 'Please enter an organization name'
+                      : null,
                 ),
-                trailing: const Icon(Icons.calendar_today),
-                onTap: () => _selectDate(context),
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: Text('Update Event', style: GoogleFonts.poppins()),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3D3434),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+              const SizedBox(height: 15),
+              _buildCard(
+                child: TextFormField(
+                  controller: _eventNameController,
+                  decoration: const InputDecoration(labelText: 'Event Name'),
+                  validator: (value) =>
+                      value!.isEmpty ? 'Please enter an event name' : null,
+                ),
+              ),
+              const SizedBox(height: 15),
+              _buildCard(
+                child: TextFormField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(labelText: 'Description'),
+                  maxLines: 3,
+                  validator: (value) =>
+                      value!.isEmpty ? 'Please enter a description' : null,
+                ),
+              ),
+              const SizedBox(height: 15),
+              _buildCard(
+                child: ListTile(
+                  title: const Text('Event Date',
+                      style: TextStyle(fontWeight: FontWeight.w500)),
+                  subtitle: Text(
+                    '${_selectedDate.toLocal().toString().split(' ')[0]}',
+                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                  trailing:
+                      const Icon(Icons.calendar_today, color: Colors.black54),
+                  onTap: () => _selectDate(context),
+                ),
+              ),
+              const SizedBox(height: 30),
+              Center(
+                child: ElevatedButton(
+                  onPressed: _submitForm,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF3D3434),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 50, vertical: 15),
+                    elevation: 5,
+                  ),
+                  child: Text('Update Event',
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildCard({required Widget child}) {
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: child,
       ),
     );
   }

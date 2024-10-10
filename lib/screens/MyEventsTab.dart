@@ -27,7 +27,7 @@ class _MyEventsTabState extends State<MyEventsTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF3D3434),
+      backgroundColor: Colors.black,
       body: FutureBuilder<List<Event>>(
         future: _eventsFuture,
         builder: (context, snapshot) {
