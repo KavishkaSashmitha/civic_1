@@ -1,13 +1,16 @@
-import 'package:civic_1/screens/MyEventsTab.dart';
+import 'package:civic_1/screens/Add_petition.dart';
+import 'package:civic_1/screens/Mypetitions.dart';
 import 'package:civic_1/screens/my_incident_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:civic_1/screens/MyEventsTab.dart';
+// Import the new file
 
 class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4, // Adjust the length for the number of tabs
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black,
@@ -22,7 +25,7 @@ class SettingsPage extends StatelessWidget {
             },
           ),
           bottom: TabBar(
-            indicatorColor: Colors.orange, // Tab highlight color
+            indicatorColor: Colors.orange,
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white60,
             labelStyle: GoogleFonts.poppins(fontWeight: FontWeight.bold),
@@ -31,7 +34,7 @@ class SettingsPage extends StatelessWidget {
               Tab(text: 'My Events'),
               Tab(text: 'My Profile'),
               Tab(text: 'Notifications'),
-              // Your new tab added
+              Tab(text: 'My Petitions'),
             ],
           ),
         ),
@@ -41,7 +44,7 @@ class SettingsPage extends StatelessWidget {
             MyEventsTab(),
             MyProfileTab(),
             NotificationsTab(),
-            // Replace NewTab with MyEventsTab that filters events
+            MyPetitionsPage(), // Use the new MyPetitionsPage here
           ],
         ),
       ),
@@ -95,6 +98,27 @@ class NotificationsTab extends StatelessWidget {
       child: Center(
         child: Text(
           'Notifications',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// New MyPetitionsTab class to display user petitions
+class MyPetitionsTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // This is where you can retrieve and display the petitions you've added
+    return Container(
+      color: const Color(0xFF3D3434), // Background similar to other pages
+      child: Center(
+        child: Text(
+          'My Petitions',
           style: GoogleFonts.poppins(
             color: Colors.white,
             fontSize: 24,

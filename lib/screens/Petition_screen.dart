@@ -1,3 +1,4 @@
+import 'package:civic_1/screens/petition_details.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -148,7 +149,14 @@ class _PetitionPageState extends State<PetitionPage> {
                               SizedBox(height: 10),
                               ElevatedButton(
                                 onPressed: () {
-                                  // Handle view details functionality here
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          PetitionDetailsScreen(
+                                              petition: petition),
+                                    ),
+                                  );
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.blueAccent,
