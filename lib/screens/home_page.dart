@@ -1,10 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:carousel_slider/carousel_slider.dart'
     as slider; // Import carousel slider package
-
-void main() {
-  runApp(HomePage());
-}
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -15,6 +13,7 @@ class HomePage extends StatelessWidget {
       title: 'Civic Alert',
       theme: ThemeData.dark(), // Dark theme to match the image
       home: NewsScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -88,74 +87,87 @@ class NewsScreen extends StatelessWidget {
   }
 }
 
-class NewsTab extends StatelessWidget {
-  final List<String> imgList = [
-    'https://via.placeholder.com/400x200', // Placeholder images
-    'https://via.placeholder.com/400x200',
-    'https://via.placeholder.com/400x200',
-  ];
+class NewsTab extends StatefulWidget {
+  @override
+  _NewsTabState createState() => _NewsTabState();
+}
 
-  NewsTab({super.key});
+class _NewsTabState extends State<NewsTab> {
+  List<dynamic> articles = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchNews();
+  }
+
+  Future<void> fetchNews() async {
+    final url =
+        'https://newsapi.org/v2/top-headlines?country=us&apiKey=017fa2ca29d8471981d6813d3c2d9937';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          articles = data['articles'];
+        });
+      } else {
+        throw Exception('Failed to load news');
+      }
+    } catch (e) {
+      print('Error fetching news: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Placeholder image list (use actual image URLs if available from API)
+    List<String> imgList = articles
+        .where((article) => article['urlToImage'] != null)
+        .map((article) => article['urlToImage'] as String)
+        .toList();
+
     return ListView(
       padding: EdgeInsets.all(16.0),
       children: [
         // Image Slider
-        slider.CarouselSlider(
-          options: slider.CarouselOptions(
-            height: 200.0,
-            autoPlay: true,
-            enlargeCenterPage: true,
-            aspectRatio: 16 / 9,
-            autoPlayCurve: Curves.fastOutSlowIn,
-            enableInfiniteScroll: true,
-            autoPlayAnimationDuration: Duration(milliseconds: 1000),
-            viewportFraction: 1.0,
+        if (imgList.isNotEmpty)
+          slider.CarouselSlider(
+            options: slider.CarouselOptions(
+              height: 200.0,
+              autoPlay: true,
+              enlargeCenterPage: true,
+              aspectRatio: 16 / 9,
+              autoPlayCurve: Curves.fastOutSlowIn,
+              enableInfiniteScroll: true,
+              autoPlayAnimationDuration: Duration(milliseconds: 1000),
+              viewportFraction: 1.0,
+            ),
+            items: imgList
+                .map((item) => Container(
+                      child: Center(
+                        child:
+                            Image.network(item, fit: BoxFit.cover, width: 1000),
+                      ),
+                    ))
+                .toList(),
           ),
-          items: imgList
-              .map((item) => Container(
-                    child: Center(
-                      child:
-                          Image.network(item, fit: BoxFit.cover, width: 1000),
-                    ),
-                  ))
-              .toList(),
-        ),
         SizedBox(height: 14),
-        // First News Card
-        NewsCard(
-          category: "Iran",
-          timeAgo: "2 hours ago",
-          headline:
-              "Women's push for equality sparks nationwide Iranian protest",
-          imageUrl: 'https://via.placeholder.com/400x200', // Placeholder image
-        ),
-        SizedBox(height: 14),
-        NewsCard(
-          category: "Iran",
-          timeAgo: "20 minutes ago",
-          headline:
-              "People walked amid destruction as they evacuate a frontline area.",
-          imageUrl: 'https://via.placeholder.com/400x200',
-        ),
-        SizedBox(height: 14),
-        NewsCard(
-          category: "Ukraine",
-          timeAgo: "7 hours ago",
-          headline:
-              "Fleeing families arrive at the main train station in Ukraine's eastern...",
-          imageUrl: 'https://via.placeholder.com/400x200',
-        ),
-        SizedBox(height: 14),
-        NewsCard(
-          category: "US",
-          timeAgo: "6 hours ago",
-          headline:
-              "The UN General Assembly passes a resolution suspending Russia from...",
-          imageUrl: 'https://via.placeholder.com/400x200',
-        ),
+        // News Cards
+        ...articles.map((article) {
+          return Column(
+            children: [
+              NewsCard(
+                category: article['source']['name'] ?? "Unknown",
+                timeAgo: article['publishedAt'] ?? "",
+                headline: article['title'] ?? "No title available",
+                imageUrl: article['urlToImage'] ??
+                    'https://via.placeholder.com/400x200',
+              ),
+              SizedBox(height: 14),
+            ],
+          );
+        }).toList(),
       ],
     );
   }

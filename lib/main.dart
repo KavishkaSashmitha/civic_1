@@ -7,8 +7,9 @@ import 'package:flutter/material.dart';
 import 'screens/home_page.dart';
 import 'screens/community_page.dart';
 import 'screens/notifications_page.dart';
-
 import 'screens/placeholder_page.dart';
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
